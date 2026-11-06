@@ -1,0 +1,31 @@
+set script-interpreter := ["bash", "-euo", "pipefail"]
+just_dir := justfile_directory()
+
+[script]
+remove-identifier:
+    find . -type f -name '*:Zone.Identifier' -delete
+
+alias t := unzip-trains
+
+[script]
+unzip-trains:
+    cd "{{just_dir}}/swiss_trains/data"
+    ls 
+    for file in *.zip; do
+        [[ -f "$file" ]] || continue
+        unzip "$file" -d "${file%.zip}"
+    done
+
+[script]
+pg-start:
+    SWISS_TRAINS_DIR="{{just_dir}}/swiss_trains"
+    SWISS_TRAINS_DB_DIR="${SWISS_TRAINS_DIR}/postgres-data"
+    mkdir -p "${SWISS_TRAINS_DB_DIR}"
+    docker run -d \
+        --name swiss-trains-db \
+        -e POSTGRES_USER=postgres \
+        -e POSTGRES_PASSWORD=postgres \
+        -e POSTGRES_DB=swiss_trains \
+        -p 5432:5432 \
+        -v "${SWISS_TRAINS_DB_DIR}:/var/lib/postgresql" \
+        postgres:18
