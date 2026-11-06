@@ -66,3 +66,27 @@ def draw_causal_graph(
             g.node(name=name, **props)
     return g
 
+def plot_scatter(xs, ys, **scatter_kwargs):
+    """Draw scatter plot with consistent style (e.g. unfilled points)"""
+    defaults = {"alpha": 0.6, "lw": 3, "s": 80, "color": "C0", "facecolors": "none"}
+
+    for k, v in defaults.items():
+        val = scatter_kwargs.get(k, v)
+        scatter_kwargs[k] = val
+
+    plt.scatter(xs, ys, **scatter_kwargs)
+
+def plot_line(xs, ys, **plot_kwargs):
+    """Plot line with consistent style (e.g. bordered lines)"""
+    linewidth = plot_kwargs.get("linewidth", 3)
+    plot_kwargs["linewidth"] = linewidth
+
+    # Copy settings for background
+    background_plot_kwargs = {k: v for k, v in plot_kwargs.items()}
+    background_plot_kwargs["linewidth"] = linewidth + 2
+    background_plot_kwargs["color"] = "white"
+    del background_plot_kwargs["label"]  # no legend label for background
+
+    plt.plot(xs, ys, **background_plot_kwargs, zorder=30)
+    plt.plot(xs, ys, **plot_kwargs, zorder=31)
+
